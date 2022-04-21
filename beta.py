@@ -6,9 +6,6 @@ screen = pygame.display.set_mode((1000, 600))
 pygame.display.set_caption('Gravkitty')
 clock = pygame.time.Clock()
 
-"""Player sprite position on coordinate system"""
-player_sprite_x = 98
-player_sprite_y = 470
 
 """Background surface, title text + rectangle initialization"""
 background_surface = pygame.image.load('graphics/background1.jpg').convert()
@@ -21,7 +18,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('graphics/player.png').convert_alpha()
-        self.rect = self.image.get_rect(topleft=(player_sprite_x, player_sprite_y))
+        self.rect = self.image.get_rect(topleft=(98, 470))
 
 
 cat = pygame.sprite.GroupSingle()
@@ -38,12 +35,13 @@ def place_surfaces():
 
 """Temporary player sprite and rectangle initialization"""
 player_sprite = pygame.image.load('graphics/player.png').convert_alpha()
-player_rect = player_sprite.get_rect(topleft=(player_sprite_x, player_sprite_y))
+player_rect = player_sprite.get_rect(topleft=(98, 470))
+
 
 while True:
-    pygame.key.set_repeat(10, 10)
 
     for event in pygame.event.get():
+        pygame.key.set_repeat(10, 10)
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
