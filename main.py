@@ -41,8 +41,11 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_v]:
                 self.rect.left -= 4
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and self.rect.bottom >= 547:
+            if event.key == pygame.K_SPACE and self.rect.bottom >= 547 and self.direction == 1:
                 self.gravity = -20
+                self.direction = -1
+            if event.key == pygame.K_SPACE and self.rect.top <= 53 and self.direction == -1:
+                self.gravity = 20
                 self.direction = 1
 
     def set_gravity(self):
@@ -51,6 +54,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.gravity
         if self.rect.bottom >= 547:
             self.rect.bottom = 547
+        if self.rect.top <= 53:
+            self.rect.top = 53
 
     def update(self):
         """Function for adding player input to game loop"""
