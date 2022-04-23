@@ -42,10 +42,10 @@ class Player(pygame.sprite.Sprite):
                 self.rect.left -= 4
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and self.rect.bottom >= 547 and self.direction == 1:
-                self.gravity = -20
+                self.gravity = -10
                 self.direction = -1
             if event.key == pygame.K_SPACE and self.rect.top <= 53 and self.direction == -1:
-                self.gravity = 20
+                self.gravity = 10
                 self.direction = 1
 
     def set_gravity(self):
