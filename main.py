@@ -26,25 +26,32 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(100, 470))
         self.gravity = 0
         self.direction = 1
+        self.flip = 1
 
     def player_input(self):
         """Function for manipulating player sprite with player inputs"""
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT] and self.rect.right < 1000:
-            self.image = pygame.image.load('graphics/player.png').convert_alpha()
+            if self.flip != 1:
+                self.image = pygame.transform.flip(self.image, True, False)
+            self.flip = 1
             self.rect.left += 6
             if keys[pygame.K_v]:
                 self.rect.left += 4
         if keys[pygame.K_LEFT] and self.rect.left > 0:
-            self.image = pygame.image.load('graphics/player1.png').convert_alpha()
+            if self.flip != 0:
+                self.image = pygame.transform.flip(self.image, True, False)
+            self.flip = 0
             self.rect.left -= 6
             if keys[pygame.K_v]:
                 self.rect.left -= 4
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and self.rect.bottom >= 547 and self.direction == 1:
+                self.image = pygame.transform.flip(self.image, False, True)
                 self.gravity = -10
                 self.direction = -1
             if event.key == pygame.K_SPACE and self.rect.top <= 53 and self.direction == -1:
+                self.image = pygame.transform.flip(self.image, False, True)
                 self.gravity = 10
                 self.direction = 1
 
