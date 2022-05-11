@@ -10,7 +10,7 @@ pygame.display.set_caption('Gravkitty')
 clock = pygame.time.Clock()
 game_active = False
 game_music = pygame.mixer.Sound('audio/gamemusic.mp3')
-game_music.set_volume(0.2)
+game_music.set_volume(0.1)
 game_music.play(loops=-1)
 
 
