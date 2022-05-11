@@ -5,8 +5,13 @@ from sys import exit
 that will be called in the functional part of the program"""
 pygame.init()
 display = pygame.display.set_mode((1000, 600))
+pygame.display.set_icon(pygame.image.load('graphics/player.png').convert_alpha())
 pygame.display.set_caption('Gravkitty')
 clock = pygame.time.Clock()
+game_active = False
+game_music = pygame.mixer.Sound('audio/gamemusic.mp3')
+game_music.set_volume(0.2)
+game_music.play(loops=-1)
 
 
 def surfaces(screen):
@@ -19,11 +24,39 @@ def surfaces(screen):
     screen.blit(ceiling_surface, (0, 0))
 
 
+# def music(state):
+#     title_music = pygame.mixer.Sound('audio/titletheme.mp3')
+#     game_music = pygame.mixer.Sound('audio/gamemusic.mp3')
+#     if state is False:
+#         title_music.play()
+#     keys = pygame.key.get_pressed()
+#     if keys[pygame.K_RETURN]:
+#         game_music.play(loops=-1)
+
+
+def intro_screen(screen):
+    font = pygame.font.Font('freesansbold.ttf', 70)
+    font2 = pygame.font.Font('freesansbold.ttf', 32)
+    game_title = font.render('Gravkitty', False, 'gold')
+    game_title_rect = game_title.get_rect(center=(475, 100))
+    title_message = font2.render('Press enter to start game', False, 'gold')
+    title_message_rect = title_message.get_rect(center=(475, 450))
+    title_background = pygame.image.load('graphics/stars.png').convert_alpha()
+    title_image = pygame.image.load('graphics/titlescreen.png').convert()
+    title_image = pygame.transform.smoothscale(title_image.convert_alpha(), (260, 346))
+    title_image_rect = title_image.get_rect(center=(485, 280))
+    screen.blit(title_background, (0, 0))
+    screen.blit(title_image, title_image_rect)
+    screen.blit(title_message, title_message_rect)
+    screen.blit(game_title, game_title_rect)
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('graphics/player.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=(100, 470))
+        self.switchsound = pygame.mixer.Sound('audio/gravityswitch.mp3')
         self.gravity = 0
         self.direction = 1
         self.flip = 1
@@ -48,10 +81,12 @@ class Player(pygame.sprite.Sprite):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and self.rect.bottom >= 547 and self.direction == 1:
                 self.image = pygame.transform.flip(self.image, False, True)
+                self.switchsound.play()
                 self.gravity = -10
                 self.direction = -1
             if event.key == pygame.K_SPACE and self.rect.top <= 53 and self.direction == -1:
                 self.image = pygame.transform.flip(self.image, False, True)
+                self.switchsound.play()
                 self.gravity = 10
                 self.direction = 1
 
@@ -64,14 +99,48 @@ class Player(pygame.sprite.Sprite):
         if self.rect.top <= 53:
             self.rect.top = 53
 
-    def update(self):
+    def restart(self):
+        self.rect = self.image.get_rect(topleft=(100, 470))
+
+    def update(self, state):
         """Function for adding player input to game loop"""
-        self.player_input()
-        self.set_gravity()
+        if state is True:
+            self.player_input()
+            self.set_gravity()
+        else:
+            self.restart()
+
+
+class Obstacle(pygame.sprite.Sprite):
+
+    def __init__(self, types):
+        super().__init__()
+        if types == 'spikes1':
+            self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(310, 517))
+        if types == 'spikes2':
+            self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(750, 53))
+            self.image = pygame.transform.flip(self.image, False, True)
+        if types == 'blackhole':
+            self.image = pygame.image.load('graphics/blackhole.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(450, 250))
+
+
+def collisions():
+    if pygame.sprite.spritecollide(player.sprite, obstacles, False):
+        return False
+    else:
+        return True
 
 
 player = pygame.sprite.GroupSingle()
 player.add(Player())
+obstacles = pygame.sprite.Group()
+obstacles.add(Obstacle('spikes1'))
+obstacles.add(Obstacle('spikes2'))
+obstacles.add(Obstacle('blackhole'))
+
 
 while True:
 
@@ -81,11 +150,18 @@ while True:
             pygame.quit()
             exit()
 
-    surfaces(display)
-
-    """Methods for adding and manipulating player"""
-    player.draw(display)
-    player.update()
+    if game_active:
+        surfaces(display)
+        player.draw(display)
+        obstacles.draw(display)
+        player.update(game_active)
+        game_active = collisions()
+    else:
+        intro_screen(display)
+        key = pygame.key.get_pressed()
+        if key[pygame.K_RETURN]:
+            player.update(game_active)
+            game_active = True
 
     pygame.display.update()
     clock.tick(60)
