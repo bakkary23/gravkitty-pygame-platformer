@@ -1,0 +1,6 @@
+GRAVKITTY INSTALLATION INSTRUCTIONS
+
+1. Download Gravkitty.zip file
+2. Extra contents of zip file
+3. Navigate to 'Game' folder
+4. Open Gravkitty.exe file
