@@ -12,12 +12,12 @@ game_active = False
 mus = 0
 stop = 0
 hit = 0
+laz_off = 0
 title_music = pygame.mixer.Sound('audio/titletheme.mp3')
-title_music.set_volume(0.1)
 game_music = pygame.mixer.Sound('audio/gamemusic.mp3')
-game_music.set_volume(0.1)
+game_music.set_volume(1.5)
 buzz_sound = pygame.mixer.Sound('audio/electricity.mp3')
-buzz_sound.set_volume(0.1)
+buzz_sound.set_volume(0.5)
 
 
 def surfaces(screen):
@@ -240,7 +240,7 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        if event.type == laser_on and collisions() != 1 and collisions() != 2:
+        if event.type == laser_on and collisions() != 1 and collisions() != 2 and laz_off == 1:
             time = 1
             timed_obstacles.update('laser', time, hit)
             buzz_sound.play()
@@ -250,6 +250,7 @@ while True:
             buzz_sound.stop()
 
     if game_active:
+        laz_off = 1
         if mus == 1:
             title_music.stop()
             game_music.play(-1)
@@ -285,6 +286,7 @@ while True:
                 stop = 0
                 game_active = False
     else:
+        laz_off = 0
         if mus == 0:
             game_music.stop()
             title_music.play()
