@@ -11,10 +11,13 @@ clock = pygame.time.Clock()
 game_active = False
 mus = 0
 stop = 0
+hit = 0
 title_music = pygame.mixer.Sound('audio/titletheme.mp3')
 title_music.set_volume(0.1)
 game_music = pygame.mixer.Sound('audio/gamemusic.mp3')
 game_music.set_volume(0.1)
+buzz_sound = pygame.mixer.Sound('audio/electricity.mp3')
+buzz_sound.set_volume(0.1)
 
 
 def surfaces(screen):
@@ -72,6 +75,8 @@ def intro_screen(screen):
 
 def collisions():
     if pygame.sprite.spritecollide(player.sprite, obstacles, False):
+        return 1
+    if pygame.sprite.spritecollide(player.sprite, timed_obstacles, False):
         return 1
     if pygame.sprite.spritecollide(player.sprite, end, False):
         return 2
@@ -150,21 +155,58 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__()
         if types == 'spikes1':
             self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
-            self.rect = self.image.get_rect(topleft=(310, 517))
+            self.rect = self.image.get_rect(topleft=(250, 517))
         if types == 'spikes2':
             self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
-            self.rect = self.image.get_rect(topleft=(700, 53))
+            self.rect = self.image.get_rect(topleft=(650, 53))
+            self.image = pygame.transform.flip(self.image, False, True)
+        if types == 'spikes3':
+            self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(700, 517))
+        if types == 'spikes4':
+            self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(400, 53))
+            self.image = pygame.transform.flip(self.image, False, True)
+        if types == 'spikes5':
+            self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(100, 53))
+            self.image = pygame.transform.flip(self.image, False, True)
+        if types == 'spikes6':
+            self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(20, 53))
+            self.image = pygame.transform.flip(self.image, False, True)
+        if types == 'spikes7':
+            self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(860, 53))
             self.image = pygame.transform.flip(self.image, False, True)
         if types == 'blackhole':
             self.image = pygame.image.load('graphics/blackhole.png').convert_alpha()
-            self.rect = self.image.get_rect(topleft=(450, 250))
+            self.rect = self.image.get_rect(topleft=(80, 250))
+        if types == 'blackhole2':
+            self.image = pygame.image.load('graphics/blackhole.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(870, 150))
+        if types == 'turret':
+            self.image = pygame.image.load('graphics/turret.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(540, 37))
+        if types == 'laser':
+            self.image = pygame.image.load('graphics/laser.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(525, 153))
+
+    def update(self, types, time_bool, hits):
+        """Function for adding player input to game loop"""
+        if time_bool == 1 and types == 'laser':
+            self.image = pygame.image.load('graphics/laser.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(525, 153))
+        if time_bool == 0 and hits != 1 and types == 'laser':
+            self.image = pygame.image.load('graphics/laser.png').convert_alpha()
+            self.rect = self.image.get_rect(topleft=(2000, 1000))
 
 
 class End(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('graphics/end.png').convert_alpha()
-        self.rect = self.image.get_rect(topleft=(850, 458))
+        self.image = pygame.image.load('graphics/endflag.png').convert_alpha()
+        self.rect = self.image.get_rect(bottomleft=(800, 547))
 
 
 player = pygame.sprite.GroupSingle()
@@ -174,7 +216,21 @@ end.add(End())
 obstacles = pygame.sprite.Group()
 obstacles.add(Obstacle('spikes1'))
 obstacles.add(Obstacle('spikes2'))
+obstacles.add(Obstacle('spikes3'))
+obstacles.add(Obstacle('spikes4'))
+obstacles.add(Obstacle('spikes5'))
+obstacles.add(Obstacle('spikes6'))
+obstacles.add(Obstacle('spikes7'))
 obstacles.add(Obstacle('blackhole'))
+obstacles.add(Obstacle('blackhole2'))
+obstacles.add(Obstacle('turret'))
+timed_obstacles = pygame.sprite.Group()
+timed_obstacles.add(Obstacle('laser'))
+
+laser_on = pygame.USEREVENT + 1
+laser_off = pygame.USEREVENT + 2
+pygame.time.set_timer(laser_on, 2000)
+pygame.time.set_timer(laser_off, 1111)
 
 
 while True:
@@ -184,20 +240,32 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        if event.type == laser_on and collisions() != 1 and collisions() != 2:
+            time = 1
+            timed_obstacles.update('laser', time, hit)
+            buzz_sound.play()
+        if event.type == laser_off:
+            time = 0
+            timed_obstacles.update('laser', time, hit)
+            buzz_sound.stop()
 
     if game_active:
         if mus == 1:
             title_music.stop()
-            game_music.play()
+            game_music.play(-1)
             mus = 0
         surfaces(display)
-        player.draw(display)
         obstacles.draw(display)
+        timed_obstacles.draw(display)
+        player.draw(display)
         end.draw(display)
         if stop != 1:
             player.update(game_active)
         if collisions() == 1:
             game_music.stop()
+            time = 1
+            hit = 1
+            timed_obstacles.update('laser', time, hit)
             game_over(display)
             if stop == 0:
                 pygame.mixer.Sound('audio/win.mp3').play()
@@ -224,6 +292,7 @@ while True:
         intro_screen(display)
         key = pygame.key.get_pressed()
         if key[pygame.K_RETURN]:
+            hit = 0
             player.update(game_active)
             game_active = True
 
