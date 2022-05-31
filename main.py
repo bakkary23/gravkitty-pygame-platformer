@@ -1,8 +1,10 @@
 import pygame
 from sys import exit
 
-"""This section sets up the needed variables, modules, etc
-that will be called in the functional part of the program"""
+"""
+This section sets up the needed variables, modules, boolean variables etc
+that will be called in the functional part of the program
+"""
 pygame.init()
 display = pygame.display.set_mode((1000, 600))
 pygame.display.set_icon(pygame.image.load('graphics/player.png').convert_alpha())
@@ -31,6 +33,9 @@ def surfaces(screen):
 
 
 def game_over(screen):
+    """
+    Initializes and places game over screen
+    """
     font = pygame.font.Font('freesansbold.ttf', 100)
     game_over_message = font.render('GAME OVER', False, 'red')
     game_over_message_rect = game_over_message.get_rect(center=(500, 250))
@@ -44,6 +49,9 @@ def game_over(screen):
 
 
 def win_screen(screen):
+    """
+    Initializes and places win screen
+    """
     font = pygame.font.Font('freesansbold.ttf', 100)
     win_message = font.render('YOU WIN!', False, 'green')
     win_message_rect = win_message.get_rect(center=(500, 250))
@@ -57,6 +65,9 @@ def win_screen(screen):
 
 
 def intro_screen(screen):
+    """
+    Initializes and places win screen
+    """
     font = pygame.font.Font('freesansbold.ttf', 70)
     font2 = pygame.font.Font('freesansbold.ttf', 32)
     game_title = font.render('Gravkitty', False, 'gold')
@@ -74,6 +85,9 @@ def intro_screen(screen):
 
 
 def collisions():
+    """
+    Functions for detecting collisions. Returns 1 or 2 for loading of proper screen
+    """
     if pygame.sprite.spritecollide(player.sprite, obstacles, False):
         return 1
     if pygame.sprite.spritecollide(player.sprite, timed_obstacles, False):
@@ -83,6 +97,9 @@ def collisions():
 
 
 class Player(pygame.sprite.Sprite):
+    """
+    Initializes player class
+    """
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('graphics/player.png').convert_alpha()
@@ -131,6 +148,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = 53
 
     def restart(self):
+        """
+        Function for placing player back at starting point upon restart
+        """
         self.rect = self.image.get_rect(topleft=(100, 490))
         if self.direction == -1:
             self.image = pygame.transform.flip(self.image, False, True)
@@ -150,8 +170,13 @@ class Player(pygame.sprite.Sprite):
 
 
 class Obstacle(pygame.sprite.Sprite):
-
+    """
+    Initializes obstacle class
+    """
     def __init__(self, types):
+        """
+        Initializes obstacle sprite and position
+        """
         super().__init__()
         if types == 'spikes1':
             self.image = pygame.image.load('graphics/spikes.png').convert_alpha()
@@ -193,7 +218,7 @@ class Obstacle(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(topleft=(525, 153))
 
     def update(self, types, time_bool, hits):
-        """Function for adding player input to game loop"""
+        """Function for making laser appear and disappear from screen"""
         if time_bool == 1 and types == 'laser':
             self.image = pygame.image.load('graphics/laser.png').convert_alpha()
             self.rect = self.image.get_rect(topleft=(525, 153))
@@ -203,12 +228,21 @@ class Obstacle(pygame.sprite.Sprite):
 
 
 class End(pygame.sprite.Sprite):
+    """
+    Initializes and places endpoint sprite
+    """
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('graphics/endflag.png').convert_alpha()
         self.rect = self.image.get_rect(bottomleft=(800, 547))
 
 
+"""
+Adds player, endpoints and obstacle objects to sprite groups. 
+Player group contains a single sprite object, endpoint group contains
+endpoint sprite. Obstacle group contains all static object sprites. Timed
+obstacle sprite contains laser object.
+"""
 player = pygame.sprite.GroupSingle()
 player.add(Player())
 end = pygame.sprite.GroupSingle()
@@ -227,6 +261,7 @@ obstacles.add(Obstacle('turret'))
 timed_obstacles = pygame.sprite.Group()
 timed_obstacles.add(Obstacle('laser'))
 
+"""Initializes laser on and off timed events"""
 laser_on = pygame.USEREVENT + 1
 laser_off = pygame.USEREVENT + 2
 pygame.time.set_timer(laser_on, 2000)
@@ -234,6 +269,9 @@ pygame.time.set_timer(laser_off, 1111)
 
 
 while True:
+    """
+    Game loop
+    """
 
     for event in pygame.event.get():
         pygame.key.set_repeat(10, 10)
