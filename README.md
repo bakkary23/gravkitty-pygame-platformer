@@ -22,6 +22,7 @@ Features and Functionality:
     Game over state: Displays game over message, leads back to title screen
     Game won state: Displays game won message, leads back to title screen
   Obstacles:
+  
   Black hole: Static obstacle floating between floor and ceiling platforms
   Spikes: Static obstacle on ground and ceiling
   Laser: Intermittently firing obstacle that must be passed through to reach end point
